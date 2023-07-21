@@ -41,7 +41,8 @@ spec:
               - ALL
           privileged: false
           readOnlyRootFilesystem: true
-        image: cartservice
+        # image: gcr.io/google-samples/microservices-demo/cartservice:v0.8.0
+        image: cartservice:1.0
         ports:
         - containerPort: 7070
         env:
@@ -52,8 +53,8 @@ spec:
             cpu: 200m
             memory: 64Mi
           limits:
-            cpu: 300m
-            memory: 128Mi
+            cpu: 500m
+            memory: 256Mi
         readinessProbe:
           initialDelaySeconds: 15
           grpc:

@@ -66,10 +66,10 @@ spec:
         resources:
           requests:
             cpu: 100m
-            memory: 64Mi
+            memory: 256Mi
           limits:
             cpu: 200m
-            memory: 128Mi
+            memory: 378Mi
 ---
 apiVersion: v1
 kind: Service
@@ -190,11 +190,11 @@ spec:
         ports:
         - containerPort: 8080
         readinessProbe:
-          periodSeconds: 5
+          periodSeconds: 10
           grpc:
             port: 8080
         livenessProbe:
-          periodSeconds: 5
+          periodSeconds: 10
           grpc:
             port: 8080
         env:
@@ -364,7 +364,8 @@ spec:
               - ALL
           privileged: false
           readOnlyRootFilesystem: true
-        image: gcr.io/google-samples/microservices-demo/paymentservice:v0.8.0
+        # image: gcr.io/google-samples/microservices-demo/paymentservice:v0.8.0
+        image: paymentservice:1.0
         ports:
         - containerPort: 50051
         env:
@@ -381,10 +382,10 @@ spec:
         resources:
           requests:
             cpu: 100m
-            memory: 64Mi
+            memory: 150Mi
           limits:
             cpu: 200m
-            memory: 128Mi
+            memory: 300Mi
 ---
 apiVersion: v1
 kind: Service
@@ -492,7 +493,8 @@ spec:
               - ALL
           privileged: false
           readOnlyRootFilesystem: true
-        image: gcr.io/google-samples/microservices-demo/cartservice:v0.8.0
+        # image: gcr.io/google-samples/microservices-demo/cartservice:v0.8.0
+        image: cartservice:1.0
         ports:
         - containerPort: 7070
         env:
@@ -500,11 +502,11 @@ spec:
           value: "redis-cart:6379"
         resources:
           requests:
-            cpu: 200m
-            memory: 64Mi
+            cpu: 500m
+            memory: 378Mi
           limits:
-            cpu: 300m
-            memory: 128Mi
+            cpu: 900m
+            memory: 768Mi
         readinessProbe:
           initialDelaySeconds: 15
           grpc:
@@ -527,76 +529,76 @@ spec:
   - name: grpc
     port: 7070
     targetPort: 7070
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: loadgenerator
-spec:
-  selector:
-    matchLabels:
-      app: loadgenerator
-  replicas: 1
-  template:
-    metadata:
-      labels:
-        app: loadgenerator
-      annotations:
-        sidecar.istio.io/rewriteAppHTTPProbers: "true"
-    spec:
-      serviceAccountName: default
-      terminationGracePeriodSeconds: 5
-      restartPolicy: Always
-      securityContext:
-        fsGroup: 1000
-        runAsGroup: 1000
-        runAsNonRoot: true
-        runAsUser: 1000
-      initContainers:
-      - command:
-        - /bin/sh
-        - -exc
-        - |
-          echo "Init container pinging frontend: ${FRONTEND_ADDR}..."
-          STATUSCODE=$(wget --server-response http://${FRONTEND_ADDR} 2>&1 | awk '/^  HTTP/{print $2}')
-          if test $STATUSCODE -ne 200; then
-              echo "Error: Could not reach frontend - Status code: ${STATUSCODE}"
-              exit 1
-          fi
-        name: frontend-check
-        securityContext:
-          allowPrivilegeEscalation: false
-          capabilities:
-            drop:
-              - ALL
-          privileged: false
-          readOnlyRootFilesystem: true
-        image: busybox:latest
-        env:
-        - name: FRONTEND_ADDR
-          value: "frontend:80"
-      containers:
-      - name: main
-        securityContext:
-          allowPrivilegeEscalation: false
-          capabilities:
-            drop:
-              - ALL
-          privileged: false
-          readOnlyRootFilesystem: true
-        image: gcr.io/google-samples/microservices-demo/loadgenerator:v0.8.0
-        env:
-        - name: FRONTEND_ADDR
-          value: "frontend:80"
-        - name: USERS
-          value: "10"
-        resources:
-          requests:
-            cpu: 300m
-            memory: 256Mi
-          limits:
-            cpu: 500m
-            memory: 512Mi
+# ---
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: loadgenerator
+# spec:
+#   selector:
+#     matchLabels:
+#       app: loadgenerator
+#   replicas: 1
+#   template:
+#     metadata:
+#       labels:
+#         app: loadgenerator
+#       annotations:
+#         sidecar.istio.io/rewriteAppHTTPProbers: "true"
+#     spec:
+#       serviceAccountName: default
+#       terminationGracePeriodSeconds: 5
+#       restartPolicy: Always
+#       securityContext:
+#         fsGroup: 1000
+#         runAsGroup: 1000
+#         runAsNonRoot: true
+#         runAsUser: 1000
+#       initContainers:
+#       - command:
+#         - /bin/sh
+#         - -exc
+#         - |
+#           echo "Init container pinging frontend: ${FRONTEND_ADDR}..."
+#           STATUSCODE=$(wget --server-response http://${FRONTEND_ADDR} 2>&1 | awk '/^  HTTP/{print $2}')
+#           if test $STATUSCODE -ne 200; then
+#               echo "Error: Could not reach frontend - Status code: ${STATUSCODE}"
+#               exit 1
+#           fi
+#         name: frontend-check
+#         securityContext:
+#           allowPrivilegeEscalation: false
+#           capabilities:
+#             drop:
+#               - ALL
+#           privileged: false
+#           readOnlyRootFilesystem: true
+#         image: busybox:latest
+#         env:
+#         - name: FRONTEND_ADDR
+#           value: "frontend:80"
+#       containers:
+#       - name: main
+#         securityContext:
+#           allowPrivilegeEscalation: false
+#           capabilities:
+#             drop:
+#               - ALL
+#           privileged: false
+#           readOnlyRootFilesystem: true
+#         image: gcr.io/google-samples/microservices-demo/loadgenerator:v0.8.0
+#         env:
+#         - name: FRONTEND_ADDR
+#           value: "frontend:80"
+#         - name: USERS
+#           value: "10"
+#         resources:
+#           requests:
+#             cpu: 300m
+#             memory: 256Mi
+#           limits:
+#             cpu: 500m
+#             memory: 512Mi
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -644,11 +646,11 @@ spec:
             port: 7000
         resources:
           requests:
-            cpu: 100m
-            memory: 64Mi
-          limits:
             cpu: 200m
-            memory: 128Mi
+            memory: 250Mi
+          limits:
+            cpu: 400m
+            memory: 500Mi
 ---
 apiVersion: v1
 kind: Service
@@ -821,7 +823,8 @@ spec:
               - ALL
           privileged: false
           readOnlyRootFilesystem: true
-        image: gcr.io/google-samples/microservices-demo/adservice:v0.8.0
+        # image: gcr.io/google-samples/microservices-demo/adservice:v0.8.0
+        image: adservice:1.0
         ports:
         - containerPort: 9555
         env:
@@ -830,10 +833,10 @@ spec:
         resources:
           requests:
             cpu: 200m
-            memory: 180Mi
+            memory: 350Mi
           limits:
-            cpu: 300m
-            memory: 300Mi
+            cpu: 1000m
+            memory: 500Mi
         readinessProbe:
           initialDelaySeconds: 20
           periodSeconds: 15
