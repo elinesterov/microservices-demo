@@ -1,6 +1,6 @@
 plugins {
     id 'com.google.protobuf' version '0.9.3'
-    id 'com.github.sherter.google-java-format' version '0.9'
+    // id 'com.github.sherter.google-java-format' version '0.9'
     id 'idea'
     id 'application'
 }
@@ -66,9 +66,9 @@ protobuf {
     }
 }
 
-googleJavaFormat {
-    toolVersion '1.17.0'
-}
+// googleJavaFormat {
+//     toolVersion '1.17.0'
+// }
 
 // Inform IDEs like IntelliJ IDEA, Eclipse or NetBeans about the generated code.
 sourceSets {
@@ -97,8 +97,9 @@ task adService(type: CreateStartScripts) {
     applicationName = 'AdService'
     outputDir = new File(project.buildDir, 'tmp')
     classpath = startScripts.classpath
-    defaultJvmOpts =
-             ["-agentpath:/opt/cprof/profiler_java_agent.so=-cprof_service=adservice,-cprof_service_version=1.0.0"]
+    //  We dont' need this crap anyway
+    // defaultJvmOpts =
+    //          ["-agentpath:/opt/cprof/profiler_java_agent.so=-cprof_service=adservice,-cprof_service_version=1.0.0"]
 }
 
 task adServiceClient(type: CreateStartScripts) {
@@ -106,8 +107,9 @@ task adServiceClient(type: CreateStartScripts) {
     applicationName = 'AdServiceClient'
     outputDir = new File(project.buildDir, 'tmp')
     classpath = startScripts.classpath
-    defaultJvmOpts =
-             ["-agentpath:/opt/cprof/profiler_java_agent.so=-cprof_service=adserviceclient,-cprof_service_version=1.0.0"]
+    // We don't need this crap anyway
+    // defaultJvmOpts =
+    //          ["-agentpath:/opt/cprof/profiler_java_agent.so=-cprof_service=adserviceclient,-cprof_service_version=1.0.0"]
 }
 
 applicationDistribution.into('bin') {
